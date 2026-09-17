@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Reset Password — Cinetrack</title>
+<style>
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:#0b0b0b;color:#fff;font-family:Arial,Helvetica,sans-serif;display:grid;place-items:center;padding:24px}
+.card{width:min(440px,100%);background:#151515;border:1px solid #292929;border-radius:20px;padding:38px;box-shadow:0 20px 70px #0008}
+.logo{font-size:21px;font-weight:800;letter-spacing:4px;margin-bottom:44px}.eyebrow{font-size:11px;letter-spacing:2px;color:#666;margin-bottom:8px}
+h1{font-size:28px;line-height:1.2;margin:0 0 12px}p{color:#9b9b9b;line-height:1.6;font-size:14px}
+label{display:block;font-size:13px;margin:22px 0 8px;color:#cfcfcf}
+input{width:100%;padding:14px 15px;border-radius:10px;border:1px solid #303030;background:#0f0f0f;color:#fff;outline:0}
+input:focus{border-color:#777}button{width:100%;margin-top:24px;padding:14px;border:0;border-radius:10px;background:#fff;color:#000;font-weight:700;cursor:pointer}
+button:disabled{opacity:.5;cursor:not-allowed}.msg{min-height:22px;margin-top:16px;font-size:13px}.success{color:#bdbdbd}.error{color:#ff8d8d}.hidden{display:none}
+.footer{text-align:center;color:#555;font-size:11px;margin-top:28px}
+</style>
+</head>
+<body>
+<main class="card">
+<div class="logo">CineTrack</div>
+<div id="content">
+<div class="eyebrow">ACCOUNT SECURITY</div>
+<h1>Reset your password</h1>
+<p>Choose a new password for your CineTrack account.</p>
+<form id="form">
+<label for="password">New password</label>
+<input id="password" type="password" minlength="8" autocomplete="new-password" placeholder="At least 8 characters" required>
+<label for="confirm">Confirm password</label>
+<input id="confirm" type="password" minlength="8" autocomplete="new-password" placeholder="Enter it again" required>
+<button id="button" type="submit">Update Password</button>
+<div id="message" class="msg"></div>
+</form>
+</div>
+<div id="done" class="hidden">
+<div class="eyebrow">CineTrack</div>
+<h1>Password updated</h1>
+<p>Your password has been changed successfully. You can now return to Cinetrack and sign in.</p>
+</div>
+<div class="footer">© Cinetrack</div>
+</main>
+<script type="module">
+import { API_BASE } from "../config.js";
+
+const form = document.getElementById("form");
+const button = document.getElementById("button");
+const message = document.getElementById("message");
+
+function getAccessToken() {
+  const hash = new URLSearchParams(location.hash.replace(/^#/, ""));
+  return hash.get("access_token");
+}
+
+const accessToken = getAccessToken();
+
+if (!accessToken) {
+  message.textContent = "This reset link is invalid or has expired.";
+  message.className = "msg error";
+  button.disabled = true;
+}
+
+form.addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  const password = document.getElementById("password").value;
+  const confirm = document.getElementById("confirm").value;
+
+  if (password !== confirm) {
+    message.textContent = "Passwords do not match.";
+    message.className = "msg error";
+    return;
+  }
+
+  if (password.length < 8) {
+    message.textContent = "Password must be at least 8 characters.";
+    message.className = "msg error";
+    return;
+  }
+
+  button.disabled = true;
+  button.textContent = "Updating…";
+  message.textContent = "";
+
+  try {
+    const response = await fetch(`${API_BASE}/supabase/auth/v1/user`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        "apikey": "worker-managed",
+        "Authorization": `Bearer ${accessToken}`
+      },
+      body: JSON.stringify({ password })
+    });
+
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      throw new Error(data.msg || data.message || data.error_description || data.error || "Unable to update password.");
+    }
+
+    document.getElementById("content").classList.add("hidden");
+    document.getElementById("done").classList.remove("hidden");
+    history.replaceState({}, document.title, location.pathname);
+  } catch (error) {
+    message.textContent = error.message;
+    message.className = "msg error";
+    button.disabled = false;
+    button.textContent = "Update Password";
+  }
+});
+</script>
+</body>
+</html>
