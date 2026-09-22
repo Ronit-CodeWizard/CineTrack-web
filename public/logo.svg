@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Grafika (https://www.grafika.cc/) -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="2048" height="2047.9" viewBox="0 0 1080 1080" preserveAspectRatio="xMidYMid meet">
+	<path d="M0 540 L0 0 L540 0 L1080 0 L1080 540 L1080 1080 L540 1080 L0 1080 L0 540 Z" fill-rule="evenodd" id="Path 1" style="fill:#0D0D0D;" />
+	<g id="Group">
+		<path d="M560.19 854.1 C733.66 854.1 874.29 713.47 874.29 540 C874.29 366.53 733.66 225.9 560.19 225.9 C386.71 225.9 246.09 366.53 246.09 540 C246.09 713.47 386.71 854.1 560.19 854.1 Z" fill-rule="evenodd" id="Path 3" style="fill:#FFFFFF;" />
+		<path d="M560.19 719.17 C659.14 719.17 739.35 638.95 739.35 540 C739.35 441.05 659.14 360.83 560.19 360.83 C461.23 360.83 381.02 441.05 381.02 540 C381.02 638.95 461.23 719.17 560.19 719.17 Z" fill-rule="evenodd" id="Path" style="fill:#0D0D0D;" />
+		<line x1="682.13" y1="637.82" x2="965.8" y2="770.1" id="Line 1" style="fill:#0D0D0D;stroke:#0D0D0D;stroke-linecap:round;stroke-linejoin:round;stroke-width:17.78;" />
+		<line x1="683.18" y1="452.13" x2="964.75" y2="349.65" id="Line" style="fill:#0D0D0D;stroke:#0D0D0D;stroke-linecap:round;stroke-linejoin:round;stroke-width:17.78;" />
+		<path d="M505.82 620.25 C506.26 633.68 513.54 638.41 527.58 631.97 L669.09 549.88 C681.2 541.17 680.8 532.84 668.9 525.54 L527.79 444.3 C513.18 436 505.72 440.4 505.45 455.61 L505.82 620.25 Z" id="Path 2" style="fill:#FFFFFF;" />
+		<rect transform="matrix(0.931490172760961, -0.363766488354488, 0.363766488354488, 0.931490172760961, 814.080150156193, 542.669271187654)" x="-85.63" y="-125.92" width="171.26" height="251.85" id="Rectangle" style="fill:#0D0D0D;" />
+		<rect transform="matrix(0.406419221550681, -0.913686716743842, 0.913686716743841, 0.406419221550682, 812.155740586707, 604.391619457183)" x="-85.63" y="-97.24" width="171.26" height="194.48" id="Rectangle 1" style="fill:#0D0D0D;" />
+	</g>
+</svg>

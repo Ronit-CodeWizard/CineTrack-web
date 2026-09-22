@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0b0b0b">
+<title>Updates — CineTrack</title>
+<link rel="icon" type="image/svg+xml" href="/logo.svg">
+<link rel="alternate icon" type="image/png" href="/logo.png">
+<link rel="apple-touch-icon" href="/logo.png">
+<meta name="description" content="Download the latest CineTrack Android release or access changelogs for earlier versions.">
+<style>
+*{box-sizing:border-box}
+html{background:#0b0b0b}
+body{margin:0;min-height:100vh;background:#0b0b0b;color:#fff;font-family:Arial,Helvetica,sans-serif;padding:28px 18px 50px}
+.wrap{width:min(760px,100%);margin:0 auto}
+.header{display:flex;align-items:center;justify-content:space-between;margin:8px 0 58px}
+.logo{font-size:20px;font-weight:800;letter-spacing:0.5px;color:#fff;text-decoration:none}
+.logo-text{font-weight:800;font-size:20px;letter-spacing:0.5px;color:#fff}
+.menu-wrap{position:relative}
+.menu-btn{background:#151515;border:1px solid #282828;color:#fff;cursor:pointer;border-radius:10px;padding:8px 14px;display:inline-flex;align-items:center;justify-content:center;gap:8px;font-size:13px;font-weight:600;font-family:inherit;transition:all 0.15s ease}
+.menu-btn:hover{background:#202020;border-color:#3a3a3a}
+.menu-btn:focus-visible{outline:2px solid #666}
+.menu-dropdown{position:absolute;top:calc(100% + 8px);right:0;width:190px;background:#151515;border:1px solid #282828;border-radius:14px;padding:6px;box-shadow:0 16px 40px rgba(0,0,0,0.7);z-index:100;display:none;flex-direction:column;gap:2px}
+.menu-dropdown.open{display:flex}
+.menu-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:9px;color:#ccc;text-decoration:none;font-size:13px;font-weight:500;transition:all 0.15s ease}
+.menu-item:hover{background:#222;color:#fff}
+.menu-item.active{color:#fff;background:#1e1e1e}
+.eyebrow{font-size:11px;letter-spacing:2px;color:#666;margin-bottom:10px}
+h1{font-size:38px;line-height:1.08;margin:0 0 12px;letter-spacing:-1px}
+.subtitle{margin:0;color:#929292;line-height:1.6;font-size:14px}
+.section{margin-top:42px}
+.card{background:#151515;border:1px solid #292929;border-radius:20px;padding:24px}
+.latest{box-shadow:0 20px 70px #0008}
+.version-row{display:flex;align-items:flex-start;justify-content:space-between;gap:18px}
+.version{font-size:25px;font-weight:700}
+.date{font-size:12px;color:#666;margin-top:7px}
+.badge{font-size:10px;letter-spacing:1.5px;color:#000;background:#fff;padding:7px 9px;border-radius:999px;white-space:nowrap;font-weight:700}
+.download{display:inline-flex;justify-content:center;align-items:center;text-decoration:none;margin-top:24px;width:100%;padding:14px 18px;border-radius:11px;background:#fff;color:#000;font-weight:700;font-size:14px;transition:background 0.15s ease}
+.download:hover{background:#e0e0e0}
+.download.disabled{background:#2a2a2a;color:#777;pointer-events:none}
+.notes{margin:22px 0 0;color:#a1a1a1;font-size:13px;line-height:1.65;white-space:pre-line}
+.older-title{font-size:16px;font-weight:700;margin-bottom:14px}
+.release{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 0;border-bottom:1px solid #242424}
+.release:last-child{border-bottom:0}
+.release-version{font-size:15px;font-weight:700}
+.release-date{font-size:11px;color:#666;margin-top:5px}
+.small-download{color:#fff;text-decoration:none;font-size:12px;border:1px solid #333;border-radius:9px;padding:9px 12px;white-space:nowrap;transition:background 0.15s ease}
+.small-download:hover{background:#202020}
+.status{color:#777;font-size:13px;line-height:1.6;margin-top:12px}
+.source-tag{font-size:11px;color:#555;margin-top:14px}
+.footer{text-align:center;color:#555;font-size:11px;margin-top:54px;display:flex;flex-direction:column;gap:8px}
+.footer-links{display:flex;justify-content:center;gap:18px}
+.footer-links a{color:#666;text-decoration:none}
+.footer-links a:hover{color:#aaa}
+.hidden{display:none}
+@media(max-width:520px){
+  body{padding:22px 14px 42px}
+  .header{margin-bottom:44px}
+  h1{font-size:32px}
+  .card{padding:20px}
+  .version-row{display:block}
+  .badge{display:inline-block;margin-top:14px}
+  .release{align-items:flex-start}
+}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <header class="header">
+    <a href="../" class="logo" style="display:inline-flex;align-items:center;gap:12px;text-decoration:none;">
+      <img src="/logo.svg" alt="CineTrack Logo" width="34" height="34" style="border-radius:8px;background:#0d0d0d;flex-shrink:0;box-shadow:0 2px 10px rgba(0,0,0,0.5);" />
+      <strong class="logo-text">CineTrack</strong>
+    </a>
+    <div class="menu-wrap">
+      <button id="menuBtn" class="menu-btn" aria-label="Toggle navigation menu" aria-expanded="false" aria-haspopup="true">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="4" x2="20" y1="6" y2="6"></line>
+          <line x1="4" x2="20" y1="12" y2="12"></line>
+          <line x1="4" x2="20" y1="18" y2="18"></line>
+        </svg>
+        <span>Menu</span>
+      </button>
+      <div id="menuDropdown" class="menu-dropdown" role="menu">
+        <a href="../" class="menu-item" role="menuitem">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          <span>Home</span>
+        </a>
+        <a href="./" class="menu-item active" role="menuitem">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+          <span>Updates</span>
+        </a>
+        <a href="https://github.com/Ronit-CodeWizard/" target="_blank" rel="noopener" class="menu-item" role="menuitem">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>
+          <span>GitHub</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <section>
+    <div class="eyebrow">DOWNLOADS</div>
+    <h1>Updates</h1>
+    <p class="subtitle">Download the latest CineTrack version or access previous releases and changelogs.</p>
+  </section>
+
+  <section class="section">
+    <div id="latestCard" class="card latest hidden">
+      <div class="version-row">
+        <div>
+          <div class="eyebrow">LATEST VERSION</div>
+          <div id="latestVersion" class="version">—</div>
+          <div id="latestDate" class="date"></div>
+        </div>
+        <div class="badge">LATEST</div>
+      </div>
+      <div id="latestNotes" class="notes"></div>
+      <a id="latestDownload" class="download" href="#" target="_blank" rel="noopener">Download latest APK</a>
+    </div>
+
+    <div id="loading" class="status">Checking available releases…</div>
+    <div id="statusNotice" class="source-tag hidden"></div>
+  </section>
+
+  <section id="olderSection" class="section hidden">
+    <div class="older-title">Older versions</div>
+    <div id="olderList" class="card"></div>
+  </section>
+
+  <footer class="footer">
+    <div>© CineTrack</div>
+  </footer>
+</main>
+
+<script type="module">
+import { WORKER_URL, GITHUB_REPO, VERSION as DEFAULT_VERSION } from "../config.js";
+
+const menuBtn = document.getElementById("menuBtn");
+const menuDropdown = document.getElementById("menuDropdown");
+
+if (menuBtn && menuDropdown) {
+  menuBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const isOpen = menuDropdown.classList.toggle("open");
+    menuBtn.setAttribute("aria-expanded", String(isOpen));
+  });
+
+  document.addEventListener("click", (e) => {
+    if (!menuDropdown.contains(e.target) && !menuBtn.contains(e.target)) {
+      menuDropdown.classList.remove("open");
+      menuBtn.setAttribute("aria-expanded", "false");
+    }
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      menuDropdown.classList.remove("open");
+      menuBtn.setAttribute("aria-expanded", "false");
+    }
+  });
+}
+
+const WORKER_BASE = WORKER_URL || "https://cinetrack-tmdb.official-ronit-codewizard.workers.dev";
+const RELEASES_ENDPOINT = `${WORKER_BASE}/releases`;
+
+const loading = document.getElementById("loading");
+const statusNotice = document.getElementById("statusNotice");
+const latestCard = document.getElementById("latestCard");
+const latestVersion = document.getElementById("latestVersion");
+const latestDate = document.getElementById("latestDate");
+const latestNotes = document.getElementById("latestNotes");
+const latestDownload = document.getElementById("latestDownload");
+const olderSection = document.getElementById("olderSection");
+const olderList = document.getElementById("olderList");
+
+function formatDate(value) {
+  if (!value) return "";
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return "";
+  return d.toLocaleDateString(undefined, {
+    year: "numeric",
+    month: "short",
+    day: "numeric"
+  });
+}
+
+function renderFormattedNotes(text) {
+  if (!text) return "";
+  const lines = text.trim().split(/\r?\n/);
+  const html = [];
+  for (let rawLine of lines) {
+    let line = rawLine.trim();
+    if (!line) {
+      html.push('<div style="height:6px"></div>');
+      continue;
+    }
+    if (/^#\s+/i.test(line)) {
+      // Top-level title - version already shown in header
+      continue;
+    }
+    if (/^##\s+/i.test(line)) {
+      const heading = line.replace(/^##\s+/, "");
+      html.push(`<div style="font-size:13px;font-weight:700;color:#fff;margin:14px 0 6px;">${heading}</div>`);
+      continue;
+    }
+    if (/^[-*•]\s*/i.test(line)) {
+      const bullet = line.replace(/^[-*•]\s*/, "");
+      html.push(`<div style="display:flex;gap:8px;margin-bottom:4px;"><span style="color:#666">•</span><span>${bullet}</span></div>`);
+      continue;
+    }
+    html.push(`<div style="margin-bottom:4px;">${line}</div>`);
+  }
+  return html.join("");
+}
+
+function normalizeReleaseData(data) {
+  if (!data) return null;
+
+  // Case 1: Worker structured format { latest: { ... }, older: [ ... ] }
+  if (data.latest && typeof data.latest === "object") {
+    const latest = {
+      version: data.latest.version || String(data.latest.tag || "").replace(/^v/i, ""),
+      name: data.latest.name || `CineTrack ${data.latest.version || ""}`,
+      date: data.latest.releaseDate || data.latest.published_at || data.latest.created_at,
+      notes: data.latest.notes || data.latest.body || "",
+      downloadUrl: data.latest.apkUrl || `${WORKER_BASE}/download/${data.latest.version || DEFAULT_VERSION}`,
+      apkName: data.latest.apkName || `CineTrack-v${data.latest.version || DEFAULT_VERSION}.apk`
+    };
+
+    const older = (Array.isArray(data.older) ? data.older : []).map(r => ({
+      version: r.version || String(r.tag || r.tag_name || "").replace(/^v/i, ""),
+      name: r.name || `CineTrack ${r.version || ""}`,
+      date: r.releaseDate || r.published_at || r.created_at,
+      notes: r.notes || r.body || "",
+      downloadUrl: r.apkUrl || `${WORKER_BASE}/download/${r.version}`,
+      apkName: r.apkName || `CineTrack-v${r.version}.apk`
+    }));
+
+    return { latest, older };
+  }
+
+  // Case 2: Array of GitHub release objects
+  if (Array.isArray(data) && data.length) {
+    const list = data
+      .filter(r => !r.draft && !r.prerelease)
+      .map(r => {
+        const v = String(r.tag_name || "").replace(/^CineTrack[-_]?/i, "").replace(/^v/i, "").trim();
+        const apk = (r.assets || []).find(a => /\.apk$/i.test(a.name || "") && !/debug/i.test(a.name || "")) ||
+                    (r.assets || []).find(a => /\.apk$/i.test(a.name || ""));
+        return {
+          version: v,
+          name: r.name || `CineTrack ${v}`,
+          date: r.published_at || r.created_at,
+          notes: r.body || "",
+          downloadUrl: apk ? apk.browser_download_url : `${WORKER_BASE}/download/${v}`,
+          apkName: apk ? apk.name : `CineTrack-v${v}.apk`
+        };
+      });
+
+    if (list.length) {
+      return { latest: list[0], older: list.slice(1) };
+    }
+  }
+
+  return null;
+}
+
+function renderReleasesUI(normalized) {
+  if (!normalized || !normalized.latest) {
+    loading.textContent = "No published CineTrack releases are available.";
+    return;
+  }
+
+  const { latest, older } = normalized;
+
+  loading.classList.add("hidden");
+
+  latestVersion.textContent = latest.version ? `v${latest.version}` : latest.name;
+  latestDate.textContent = latest.date ? formatDate(latest.date) : "Latest Release";
+  latestNotes.innerHTML = renderFormattedNotes(latest.notes);
+
+  if (latest.downloadUrl) {
+    latestDownload.href = latest.downloadUrl;
+    latestDownload.textContent = `Download CineTrack v${latest.version} (APK)`;
+    latestDownload.classList.remove("disabled");
+  } else {
+    latestDownload.removeAttribute("href");
+    latestDownload.textContent = "APK download pending";
+    latestDownload.classList.add("disabled");
+  }
+
+  latestCard.classList.remove("hidden");
+
+  if (older && older.length) {
+    olderList.innerHTML = "";
+    olderSection.classList.remove("hidden");
+
+    older.forEach(release => {
+      const row = document.createElement("div");
+      row.className = "release";
+
+      const info = document.createElement("div");
+      const versionEl = document.createElement("div");
+      versionEl.className = "release-version";
+      versionEl.textContent = `CineTrack v${release.version}`;
+
+      const dateEl = document.createElement("div");
+      dateEl.className = "release-date";
+      dateEl.textContent = release.date ? formatDate(release.date) : "";
+
+      info.appendChild(versionEl);
+      if (release.date) info.appendChild(dateEl);
+
+      if (release.downloadUrl) {
+        const link = document.createElement("a");
+        link.className = "small-download";
+        link.href = release.downloadUrl;
+        link.textContent = "Download APK";
+        row.appendChild(info);
+        row.appendChild(link);
+      } else {
+        const unavailable = document.createElement("span");
+        unavailable.className = "release-date";
+        unavailable.textContent = "APK unavailable";
+        row.appendChild(info);
+        row.appendChild(unavailable);
+      }
+
+      olderList.appendChild(row);
+    });
+  } else {
+    olderSection.classList.add("hidden");
+  }
+
+  statusNotice.innerHTML = `Live release feed connected via Cloudflare Worker. Direct APK downloads enabled.`;
+  statusNotice.classList.remove("hidden");
+}
+
+async function loadReleases() {
+  loading.classList.remove("hidden");
+  latestCard.classList.add("hidden");
+  olderSection.classList.add("hidden");
+  statusNotice.classList.add("hidden");
+
+  try {
+    const response = await fetch(RELEASES_ENDPOINT, {
+      cache: "no-store"
+    });
+
+    if (!response.ok) {
+      throw new Error(`Worker returned status ${response.status}`);
+    }
+
+    const data = await response.json();
+    const normalized = normalizeReleaseData(data);
+
+    if (!normalized) {
+      throw new Error("Invalid release structure");
+    }
+
+    renderReleasesUI(normalized);
+  } catch (err) {
+    console.warn("Worker fetch failed, falling back to static official release:", err);
+    // Graceful fallback to verified release
+    renderReleasesUI({
+      latest: {
+        version: DEFAULT_VERSION || "1.0",
+        name: `CineTrack ${DEFAULT_VERSION || "1.0"}`,
+        date: "2026-09-22T13:22:55Z",
+        notes: "Initial release of CineTrack.\n\n• Movie and TV series tracking\n• Watchlist & Seen list\n• Discovery and Search powered by TMDB\n• User profiles and CineTrack ID\n• Automatic update system",
+        downloadUrl: `${WORKER_BASE}/download/${DEFAULT_VERSION || "1.0"}`,
+        apkName: `CineTrack-v${DEFAULT_VERSION || "1.0"}.apk`
+      },
+      older: []
+    });
+  }
+}
+
+loadReleases();
+</script>
+</body>
+</html>
+

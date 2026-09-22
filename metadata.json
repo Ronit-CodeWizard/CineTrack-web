@@ -1,0 +1,6 @@
+{
+  "name": "CineTrack",
+  "description": "Download official CineTrack releases, access updates, and manage your account.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
