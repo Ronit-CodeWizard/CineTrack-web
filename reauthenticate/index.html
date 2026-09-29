@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Reauthentication — CineTrack</title>
+<link rel="icon" type="image/svg+xml" href="/logo.svg">
+<link rel="alternate icon" type="image/png" href="/logo.png">
+<link rel="apple-touch-icon" href="/logo.png">
+<style>
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:#0b0b0b;color:#fff;font-family:Arial,Helvetica,sans-serif;display:grid;place-items:center;padding:24px}
+.card{width:min(440px,100%);background:#151515;border:1px solid #292929;border-radius:20px;padding:38px;box-shadow:0 20px 70px #0008}
+.logo{font-size:21px;font-weight:800;letter-spacing:0.5px;margin-bottom:36px;display:flex;align-items:center;gap:12px;text-decoration:none;color:#fff}
+.eyebrow{font-size:11px;letter-spacing:2px;color:#666;margin-bottom:8px;font-weight:700;text-transform:uppercase}
+h1{font-size:28px;line-height:1.2;margin:0 0 12px;letter-spacing:-0.5px}
+p{color:#9b9b9b;line-height:1.6;font-size:14px;margin:0 0 14px}
+label{display:block;font-size:13px;margin:20px 0 8px;color:#cfcfcf}
+input{width:100%;padding:14px 15px;border-radius:10px;border:1px solid #303030;background:#0f0f0f;color:#fff;outline:0;font-size:14px;font-family:inherit}
+input:focus{border-color:#777}
+button{width:100%;margin-top:24px;padding:14px;border:0;border-radius:10px;background:#fff;color:#000;font-weight:700;font-size:14px;font-family:inherit;cursor:pointer;transition:background 0.15s ease}
+button:hover{background:#e0e0e0}
+button:disabled{opacity:.5;cursor:not-allowed}
+.msg{min-height:22px;margin-top:16px;font-size:13px;line-height:1.5}
+.success{color:#a3e635}
+.error{color:#ff8d8d}
+.info{color:#a0a0a0}
+.hidden{display:none}
+.footer{text-align:center;color:#555;font-size:11px;margin-top:32px}
+.btn-action{display:inline-block;margin-top:18px;color:#fff;text-decoration:none;font-size:13px;font-weight:600;border:1px solid #333;padding:12px 18px;border-radius:10px;background:#1e1e1e;text-align:center;transition:background 0.15s ease}
+.btn-action:hover{background:#282828}
+.btn-secondary{display:block;width:100%;margin-top:12px;text-align:center;color:#888;text-decoration:none;font-size:12px;background:none;border:none;padding:8px;cursor:pointer}
+.btn-secondary:hover{color:#fff}
+.info-box{background:#111;border:1px solid #262626;border-radius:12px;padding:16px;margin:20px 0 14px;font-size:13px;color:#8f8f8f;line-height:1.6}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;background:#142918;color:#4ade80;font-size:12px;font-weight:600;margin-bottom:16px}
+.tabs{display:flex;gap:6px;margin:18px 0 6px;background:#0d0d0d;padding:4px;border-radius:10px;border:1px solid #262626}
+.tab{flex:1;background:none;border:none;color:#777;padding:8px 12px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;margin:0;transition:all .15s}
+.tab.active{background:#202020;color:#fff}
+</style>
+</head>
+<body>
+<main class="card">
+<a href="../" class="logo">
+  <img src="/logo.svg" alt="CineTrack Logo" width="34" height="34" style="border-radius:8px;background:#0d0d0d;flex-shrink:0;box-shadow:0 2px 10px rgba(0,0,0,0.5);" />
+  <strong style="font-weight:800;font-size:20px;letter-spacing:0.5px;">CineTrack</strong>
+</a>
+
+<!-- Verifying Loading State -->
+<div id="verifyingState" class="hidden">
+  <div class="eyebrow">VERIFYING</div>
+  <h1>Confirming identity…</h1>
+  <p>Please wait while we verify your reauthentication link with CineTrack security.</p>
+  <div class="msg info" id="verifyingMsg">Connecting to authentication server…</div>
+</div>
+
+<!-- Form State -->
+<div id="content">
+  <div class="eyebrow">ACCOUNT SECURITY</div>
+  <h1>Confirm your identity</h1>
+  <p>To authorize this sensitive account action, please re-authenticate using your password or verification code.</p>
+
+  <div class="tabs">
+    <button type="button" class="tab active" id="tabPassword">Password</button>
+    <button type="button" class="tab" id="tabCode">Security Code (OTP)</button>
+  </div>
+
+  <form id="form">
+    <div id="passwordSection">
+      <label for="password">Account password</label>
+      <input id="password" type="password" autocomplete="current-password" placeholder="Enter your current password">
+    </div>
+
+    <div id="codeSection" class="hidden">
+      <label for="email">Account email</label>
+      <input id="email" type="email" autocomplete="email" placeholder="name@example.com">
+
+      <label for="otpCode">6-digit security code</label>
+      <input id="otpCode" type="text" pattern="[0-9]*" maxlength="8" placeholder="123456" inputmode="numeric">
+    </div>
+
+    <button id="button" type="submit">Verify &amp; Continue</button>
+    <div id="message" class="msg"></div>
+  </form>
+</div>
+
+<!-- Success State -->
+<div id="done" class="hidden">
+  <div class="badge">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+    IDENTITY CONFIRMED
+  </div>
+  <h1>Reauthenticated</h1>
+  <p>Your identity has been verified. The sensitive operation is now authorized for your CineTrack account.</p>
+  <div class="info-box">
+    You can now return to the CineTrack app to finish your action.
+  </div>
+  <a href="cinetrack://auth/reauthenticated" id="appDeepLink" class="btn-action" style="display:block;width:100%;text-align:center;box-sizing:border-box;">Open CineTrack App</a>
+  <a href="../" class="btn-secondary">Return to CineTrack Home</a>
+</div>
+
+<!-- Error / Expired Link State -->
+<div id="errorState" class="hidden">
+  <div class="eyebrow">SECURITY ERROR</div>
+  <h1 id="errorTitle">Verification failed</h1>
+  <p id="errorDescription">This reauthentication link is invalid or has expired.</p>
+  <div class="info-box">
+    For account security, authorization tokens expire after a short time. Please trigger the request again from CineTrack settings.
+  </div>
+  <a href="../" class="btn-action" style="display:block;width:100%;text-align:center;box-sizing:border-box;">Return to Home</a>
+</div>
+
+<div class="footer">© CineTrack</div>
+</main>
+
+<script type="module">
+import { API_BASE } from "../config.js";
+
+const content = document.getElementById("content");
+const verifyingState = document.getElementById("verifyingState");
+const done = document.getElementById("done");
+const errorState = document.getElementById("errorState");
+const errorTitle = document.getElementById("errorTitle");
+const errorDesc = document.getElementById("errorDescription");
+const form = document.getElementById("form");
+const button = document.getElementById("button");
+const message = document.getElementById("message");
+const tabPassword = document.getElementById("tabPassword");
+const tabCode = document.getElementById("tabCode");
+const passwordSection = document.getElementById("passwordSection");
+const codeSection = document.getElementById("codeSection");
+const passwordInput = document.getElementById("password");
+const emailInput = document.getElementById("email");
+const otpInput = document.getElementById("otpCode");
+
+let activeTab = "password";
+
+tabPassword.addEventListener("click", () => {
+  activeTab = "password";
+  tabPassword.classList.add("active");
+  tabCode.classList.remove("active");
+  passwordSection.classList.remove("hidden");
+  codeSection.classList.add("hidden");
+  message.textContent = "";
+});
+
+tabCode.addEventListener("click", () => {
+  activeTab = "code";
+  tabCode.classList.add("active");
+  tabPassword.classList.remove("active");
+  passwordSection.classList.add("hidden");
+  codeSection.classList.remove("hidden");
+  message.textContent = "";
+});
+
+function getParams() {
+  const hash = new URLSearchParams(location.hash.replace(/^#/, ""));
+  const query = new URLSearchParams(location.search);
+  return {
+    accessToken: hash.get("access_token") || query.get("access_token") || hash.get("token") || query.get("token"),
+    tokenHash: hash.get("token_hash") || query.get("token_hash"),
+    type: hash.get("type") || query.get("type"),
+    error: hash.get("error_description") || query.get("error_description") || hash.get("error") || query.get("error"),
+    email: hash.get("email") || query.get("email")
+  };
+}
+
+const params = getParams();
+
+if (params.email) {
+  emailInput.value = params.email;
+}
+
+// Check for error in parameters
+if (params.error) {
+  showError("Reauthentication link expired", decodeURIComponent(params.error.replace(/\+/g, " ")));
+} else if (params.tokenHash && (params.type === "reauthenticate" || !params.type)) {
+  // Auto-verify token hash
+  verifyReauthHash(params.tokenHash);
+} else if (params.accessToken && params.type === "reauthenticate") {
+  showSuccess();
+}
+
+async function verifyReauthHash(tokenHash) {
+  content.classList.add("hidden");
+  verifyingState.classList.remove("hidden");
+
+  try {
+    const response = await fetch(`${API_BASE}/supabase/auth/v1/verify`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "apikey": "worker-managed"
+      },
+      body: JSON.stringify({
+        type: "reauthenticate",
+        token_hash: tokenHash
+      })
+    });
+
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      throw new Error(data.msg || data.message || data.error_description || "Invalid or expired reauthentication token.");
+    }
+
+    showSuccess();
+  } catch (err) {
+    showError("Verification Failed", err.message);
+  }
+}
+
+function showSuccess() {
+  content.classList.add("hidden");
+  verifyingState.classList.add("hidden");
+  errorState.classList.add("hidden");
+  done.classList.remove("hidden");
+  history.replaceState({}, document.title, location.pathname);
+}
+
+function showError(title, desc) {
+  content.classList.add("hidden");
+  verifyingState.classList.add("hidden");
+  done.classList.add("hidden");
+  errorTitle.textContent = title;
+  errorDesc.textContent = desc;
+  errorState.classList.remove("hidden");
+}
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  button.disabled = true;
+  button.textContent = "Verifying…";
+  message.textContent = "";
+
+  try {
+    if (activeTab === "password") {
+      const password = passwordInput.value;
+      if (!password) {
+        throw new Error("Please enter your current password.");
+      }
+
+      const headers = {
+        "Content-Type": "application/json",
+        "apikey": "worker-managed"
+      };
+
+      if (params.accessToken) {
+        headers["Authorization"] = `Bearer ${params.accessToken}`;
+      }
+
+      const response = await fetch(`${API_BASE}/supabase/auth/v1/reauthenticate`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ password })
+      });
+
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(data.msg || data.message || data.error_description || "Reauthentication failed. Check your password.");
+      }
+
+      showSuccess();
+    } else {
+      const email = emailInput.value.trim();
+      const code = otpInput.value.trim();
+
+      if (!email || !code) {
+        throw new Error("Please provide both email address and 6-digit security code.");
+      }
+
+      const response = await fetch(`${API_BASE}/supabase/auth/v1/verify`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "apikey": "worker-managed"
+        },
+        body: JSON.stringify({
+          email,
+          token: code,
+          type: "reauthenticate"
+        })
+      });
+
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(data.msg || data.message || data.error_description || "Invalid security code.");
+      }
+
+      showSuccess();
+    }
+  } catch (err) {
+    message.textContent = err.message;
+    message.className = "msg error";
+    button.disabled = false;
+    button.textContent = "Verify & Continue";
+  }
+});
+</script>
+</body>
+</html>

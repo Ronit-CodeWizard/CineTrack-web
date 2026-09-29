@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Magic Link &amp; OTP — CineTrack</title>
+<link rel="icon" type="image/svg+xml" href="/logo.svg">
+<link rel="alternate icon" type="image/png" href="/logo.png">
+<link rel="apple-touch-icon" href="/logo.png">
+<style>
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:#0b0b0b;color:#fff;font-family:Arial,Helvetica,sans-serif;display:grid;place-items:center;padding:24px}
+.card{width:min(440px,100%);background:#151515;border:1px solid #292929;border-radius:20px;padding:38px;box-shadow:0 20px 70px #0008}
+.logo{font-size:21px;font-weight:800;letter-spacing:0.5px;margin-bottom:36px;display:flex;align-items:center;gap:12px;text-decoration:none;color:#fff}
+.eyebrow{font-size:11px;letter-spacing:2px;color:#666;margin-bottom:8px;font-weight:700;text-transform:uppercase}
+h1{font-size:28px;line-height:1.2;margin:0 0 12px;letter-spacing:-0.5px}
+p{color:#9b9b9b;line-height:1.6;font-size:14px;margin:0 0 14px}
+label{display:block;font-size:13px;margin:20px 0 8px;color:#cfcfcf}
+input{width:100%;padding:14px 15px;border-radius:10px;border:1px solid #303030;background:#0f0f0f;color:#fff;outline:0;font-size:14px;font-family:inherit}
+input:focus{border-color:#777}
+button{width:100%;margin-top:24px;padding:14px;border:0;border-radius:10px;background:#fff;color:#000;font-weight:700;font-size:14px;font-family:inherit;cursor:pointer;transition:background 0.15s ease}
+button:hover{background:#e0e0e0}
+button:disabled{opacity:.5;cursor:not-allowed}
+.msg{min-height:22px;margin-top:16px;font-size:13px;line-height:1.5}
+.success{color:#a3e635}
+.error{color:#ff8d8d}
+.info{color:#a0a0a0}
+.hidden{display:none}
+.footer{text-align:center;color:#555;font-size:11px;margin-top:32px}
+.btn-action{display:inline-block;margin-top:18px;color:#fff;text-decoration:none;font-size:13px;font-weight:600;border:1px solid #333;padding:12px 18px;border-radius:10px;background:#1e1e1e;text-align:center;transition:background 0.15s ease}
+.btn-action:hover{background:#282828}
+.btn-secondary{display:block;width:100%;margin-top:12px;text-align:center;color:#888;text-decoration:none;font-size:12px;background:none;border:none;padding:8px;cursor:pointer}
+.btn-secondary:hover{color:#fff}
+.info-box{background:#111;border:1px solid #262626;border-radius:12px;padding:16px;margin:20px 0 14px;font-size:13px;color:#8f8f8f;line-height:1.6}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;background:#142918;color:#4ade80;font-size:12px;font-weight:600;margin-bottom:16px}
+.tabs{display:flex;gap:6px;margin:18px 0 6px;background:#0d0d0d;padding:4px;border-radius:10px;border:1px solid #262626}
+.tab{flex:1;background:none;border:none;color:#777;padding:8px 12px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;margin:0;transition:all .15s}
+.tab.active{background:#202020;color:#fff}
+.otp-input{letter-spacing:6px;font-size:20px;text-align:center;font-weight:700}
+</style>
+</head>
+<body>
+<main class="card">
+<a href="../" class="logo">
+  <img src="/logo.svg" alt="CineTrack Logo" width="34" height="34" style="border-radius:8px;background:#0d0d0d;flex-shrink:0;box-shadow:0 2px 10px rgba(0,0,0,0.5);" />
+  <strong style="font-weight:800;font-size:20px;letter-spacing:0.5px;">CineTrack</strong>
+</a>
+
+<!-- Loading state when verifying magic link from email -->
+<div id="verifyingState" class="hidden">
+  <div class="eyebrow">VERIFYING LINK</div>
+  <h1>Signing you in…</h1>
+  <p>Please wait while we verify your magic link with CineTrack authentication.</p>
+  <div class="msg info">Validating security credentials…</div>
+</div>
+
+<!-- Main Form -->
+<div id="content">
+  <div class="eyebrow">PASSWORDLESS ACCESS</div>
+  <h1>Magic link or OTP</h1>
+  <p>Sign in to your CineTrack account instantly using a magic email link or 6-digit one-time passcode.</p>
+
+  <div class="tabs">
+    <button type="button" class="tab active" id="tabMagicLink">Request Magic Link</button>
+    <button type="button" class="tab" id="tabOtp">Enter OTP Code</button>
+  </div>
+
+  <!-- Magic Link Request Form -->
+  <form id="magicLinkForm">
+    <label for="magicEmail">Account email address</label>
+    <input id="magicEmail" type="email" autocomplete="email" placeholder="name@example.com" required>
+
+    <button id="sendMagicBtn" type="submit">Send Magic Link</button>
+    <div id="magicMessage" class="msg"></div>
+  </form>
+
+  <!-- OTP Verification Form -->
+  <form id="otpForm" class="hidden">
+    <label for="otpEmail">Account email address</label>
+    <input id="otpEmail" type="email" autocomplete="email" placeholder="name@example.com" required>
+
+    <label for="otpCode">6-digit verification code</label>
+    <input id="otpCode" class="otp-input" type="text" pattern="[0-9]*" maxlength="8" placeholder="123456" inputmode="numeric" required>
+
+    <button id="verifyOtpBtn" type="submit">Verify &amp; Sign In</button>
+    <div id="otpMessage" class="msg"></div>
+  </form>
+</div>
+
+<!-- Email Sent Confirmation Notice with OTP entry -->
+<div id="sentState" class="hidden">
+  <div class="eyebrow">CHECK YOUR INBOX</div>
+  <h1>Check your email</h1>
+  <p>We've sent a magic link and 6-digit verification code to <strong id="sentEmailDisplay" style="color:#fff;">your email</strong>.</p>
+  
+  <div class="info-box">
+    Click the direct link in the email, or enter the 6-digit one-time passcode below to sign in right now.
+  </div>
+
+  <form id="sentOtpForm">
+    <label for="sentOtpCode">6-digit verification code</label>
+    <input id="sentOtpCode" class="otp-input" type="text" pattern="[0-9]*" maxlength="8" placeholder="123456" inputmode="numeric" required>
+    
+    <button id="sentVerifyBtn" type="submit">Verify Code &amp; Sign In</button>
+    <div id="sentOtpMessage" class="msg"></div>
+  </form>
+
+  <button type="button" id="backToRequestBtn" class="btn-secondary">Didn't receive it? Try another email</button>
+</div>
+
+<!-- Signed In Success State -->
+<div id="done" class="hidden">
+  <div class="badge">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+    AUTHENTICATED
+  </div>
+  <h1>Signed in!</h1>
+  <p>You have successfully authenticated with CineTrack. Welcome back!</p>
+  
+  <div class="info-box">
+    Your session is confirmed. You can now launch CineTrack to sync your watchlist, track movies, and receive new release updates.
+  </div>
+
+  <a href="cinetrack://auth/session" id="appDeepLink" class="btn-action" style="display:block;width:100%;text-align:center;box-sizing:border-box;">Open CineTrack App</a>
+  <a href="../" class="btn-secondary">Return to CineTrack Home</a>
+</div>
+
+<!-- Error State -->
+<div id="errorState" class="hidden">
+  <div class="eyebrow">AUTHENTICATION NOTICE</div>
+  <h1 id="errorTitle">Magic link expired</h1>
+  <p id="errorDescription">This magic link or verification code has expired or is invalid.</p>
+  <div class="info-box">
+    For security, magic links are single-use and expire within a short window. You can easily request a fresh one.
+  </div>
+  <button type="button" id="retryBtn" class="btn-action" style="width:100%;border:none;cursor:pointer;">Request New Magic Link</button>
+</div>
+
+<div class="footer">© CineTrack</div>
+</main>
+
+<script type="module">
+import { API_BASE } from "../config.js";
+
+const content = document.getElementById("content");
+const verifyingState = document.getElementById("verifyingState");
+const sentState = document.getElementById("sentState");
+const done = document.getElementById("done");
+const errorState = document.getElementById("errorState");
+const errorTitle = document.getElementById("errorTitle");
+const errorDesc = document.getElementById("errorDescription");
+const tabMagicLink = document.getElementById("tabMagicLink");
+const tabOtp = document.getElementById("tabOtp");
+const magicLinkForm = document.getElementById("magicLinkForm");
+const otpForm = document.getElementById("otpForm");
+const sentOtpForm = document.getElementById("sentOtpForm");
+const magicEmailInput = document.getElementById("magicEmail");
+const otpEmailInput = document.getElementById("otpEmail");
+const otpCodeInput = document.getElementById("otpCode");
+const sentOtpCodeInput = document.getElementById("sentOtpCode");
+const sentEmailDisplay = document.getElementById("sentEmailDisplay");
+const sendMagicBtn = document.getElementById("sendMagicBtn");
+const verifyOtpBtn = document.getElementById("verifyOtpBtn");
+const sentVerifyBtn = document.getElementById("sentVerifyBtn");
+const magicMessage = document.getElementById("magicMessage");
+const otpMessage = document.getElementById("otpMessage");
+const sentOtpMessage = document.getElementById("sentOtpMessage");
+const backToRequestBtn = document.getElementById("backToRequestBtn");
+const retryBtn = document.getElementById("retryBtn");
+const appDeepLink = document.getElementById("appDeepLink");
+
+let currentEmail = "";
+
+// Tab switcher
+tabMagicLink.addEventListener("click", () => {
+  tabMagicLink.classList.add("active");
+  tabOtp.classList.remove("active");
+  magicLinkForm.classList.remove("hidden");
+  otpForm.classList.add("hidden");
+  magicMessage.textContent = "";
+});
+
+tabOtp.addEventListener("click", () => {
+  tabOtp.classList.add("active");
+  tabMagicLink.classList.remove("active");
+  otpForm.classList.remove("hidden");
+  magicLinkForm.classList.add("hidden");
+  otpMessage.textContent = "";
+  if (magicEmailInput.value) {
+    otpEmailInput.value = magicEmailInput.value;
+  }
+});
+
+backToRequestBtn.addEventListener("click", () => {
+  sentState.classList.add("hidden");
+  content.classList.remove("hidden");
+  magicMessage.textContent = "";
+});
+
+retryBtn.addEventListener("click", () => {
+  errorState.classList.add("hidden");
+  content.classList.remove("hidden");
+  magicMessage.textContent = "";
+});
+
+function getParams() {
+  const hash = new URLSearchParams(location.hash.replace(/^#/, ""));
+  const query = new URLSearchParams(location.search);
+  return {
+    accessToken: hash.get("access_token") || query.get("access_token") || hash.get("token") || query.get("token"),
+    refreshToken: hash.get("refresh_token") || query.get("refresh_token"),
+    tokenHash: hash.get("token_hash") || query.get("token_hash"),
+    type: hash.get("type") || query.get("type"),
+    error: hash.get("error_description") || query.get("error_description") || hash.get("error") || query.get("error"),
+    email: hash.get("email") || query.get("email")
+  };
+}
+
+const params = getParams();
+
+if (params.email) {
+  magicEmailInput.value = params.email;
+  otpEmailInput.value = params.email;
+  currentEmail = params.email;
+}
+
+// Auto-check incoming link credentials
+if (params.error) {
+  showError("Link Expired or Invalid", decodeURIComponent(params.error.replace(/\+/g, " ")));
+} else if (params.tokenHash && (params.type === "magiclink" || params.type === "email" || !params.type)) {
+  verifyMagicTokenHash(params.tokenHash, params.type || "magiclink");
+} else if (params.accessToken) {
+  showSuccess(params.accessToken, params.refreshToken);
+}
+
+async function verifyMagicTokenHash(tokenHash, verifyType) {
+  content.classList.add("hidden");
+  verifyingState.classList.remove("hidden");
+
+  try {
+    let response = await fetch(`${API_BASE}/supabase/auth/v1/verify`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "apikey": "worker-managed"
+      },
+      body: JSON.stringify({
+        type: verifyType,
+        token_hash: tokenHash
+      })
+    });
+
+    let data = await response.json().catch(() => ({}));
+    if (!response.ok && verifyType === "magiclink") {
+      // Retry with type "email" in case worker/Supabase expects "email"
+      const retryRes = await fetch(`${API_BASE}/supabase/auth/v1/verify`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "apikey": "worker-managed"
+        },
+        body: JSON.stringify({
+          type: "email",
+          token_hash: tokenHash
+        })
+      });
+      if (retryRes.ok) {
+        data = await retryRes.json().catch(() => ({}));
+        response = retryRes;
+      }
+    }
+
+    if (!response.ok) {
+      throw new Error(data.msg || data.message || data.error_description || "Invalid or expired magic link.");
+    }
+
+    showSuccess(data.access_token, data.refresh_token);
+  } catch (err) {
+    showError("Verification Failed", err.message);
+  }
+}
+
+function showSuccess(token, refreshToken) {
+  content.classList.add("hidden");
+  verifyingState.classList.add("hidden");
+  sentState.classList.add("hidden");
+  errorState.classList.add("hidden");
+  done.classList.remove("hidden");
+
+  if (token) {
+    let deepLink = `cinetrack://auth/session#access_token=${encodeURIComponent(token)}`;
+    if (refreshToken) deepLink += `&refresh_token=${encodeURIComponent(refreshToken)}`;
+    appDeepLink.setAttribute("href", deepLink);
+  }
+
+  history.replaceState({}, document.title, location.pathname);
+}
+
+function showError(title, desc) {
+  content.classList.add("hidden");
+  verifyingState.classList.add("hidden");
+  sentState.classList.add("hidden");
+  done.classList.add("hidden");
+  errorTitle.textContent = title;
+  errorDesc.textContent = desc;
+  errorState.classList.remove("hidden");
+}
+
+// Handle sending magic link
+magicLinkForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const email = magicEmailInput.value.trim();
+  if (!email) return;
+
+  currentEmail = email;
+  sendMagicBtn.disabled = true;
+  sendMagicBtn.textContent = "Sending…";
+  magicMessage.textContent = "";
+
+  try {
+    const redirectUrl = `${window.location.origin}/magic-link/`;
+    const response = await fetch(`${API_BASE}/supabase/auth/v1/otp`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "apikey": "worker-managed"
+      },
+      body: JSON.stringify({
+        email,
+        create_user: false,
+        options: {
+          email_redirect_to: redirectUrl
+        }
+      })
+    });
+
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      throw new Error(data.msg || data.message || data.error_description || "Unable to send magic link.");
+    }
+
+    content.classList.add("hidden");
+    sentEmailDisplay.textContent = email;
+    sentState.classList.remove("hidden");
+  } catch (err) {
+    magicMessage.textContent = err.message;
+    magicMessage.className = "msg error";
+    sendMagicBtn.disabled = false;
+    sendMagicBtn.textContent = "Send Magic Link";
+  }
+});
+
+// Handle OTP from original form
+otpForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const email = otpEmailInput.value.trim();
+  const token = otpCodeInput.value.trim();
+  if (!email || !token) return;
+
+  verifyOtpBtn.disabled = true;
+  verifyOtpBtn.textContent = "Verifying…";
+  otpMessage.textContent = "";
+
+  await doVerifyOtp(email, token, otpMessage, verifyOtpBtn, "Verify & Sign In");
+});
+
+// Handle OTP from sent state
+sentOtpForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const token = sentOtpCodeInput.value.trim();
+  if (!currentEmail || !token) return;
+
+  sentVerifyBtn.disabled = true;
+  sentVerifyBtn.textContent = "Verifying…";
+  sentOtpMessage.textContent = "";
+
+  await doVerifyOtp(currentEmail, token, sentOtpMessage, sentVerifyBtn, "Verify Code & Sign In");
+});
+
+async function doVerifyOtp(email, token, msgEl, btnEl, originalBtnText) {
+  try {
+    let response = await fetch(`${API_BASE}/supabase/auth/v1/verify`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "apikey": "worker-managed"
+      },
+      body: JSON.stringify({
+        email,
+        token,
+        type: "email"
+      })
+    });
+
+    let data = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      // Try type magiclink
+      const retryRes = await fetch(`${API_BASE}/supabase/auth/v1/verify`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "apikey": "worker-managed"
+        },
+        body: JSON.stringify({
+          email,
+          token,
+          type: "magiclink"
+        })
+      });
+      if (retryRes.ok) {
+        data = await retryRes.json().catch(() => ({}));
+        response = retryRes;
+      }
+    }
+
+    if (!response.ok) {
+      throw new Error(data.msg || data.message || data.error_description || "Invalid or expired 6-digit code.");
+    }
+
+    showSuccess(data.access_token, data.refresh_token);
+  } catch (err) {
+    msgEl.textContent = err.message;
+    msgEl.className = "msg error";
+    btnEl.disabled = false;
+    btnEl.textContent = originalBtnText;
+  }
+}
+</script>
+</body>
+</html>

@@ -39,11 +39,16 @@ button:disabled{opacity:.5;cursor:not-allowed}.msg{min-height:22px;margin-top:16
 </form>
 </div>
 <div id="done" class="hidden">
-<div class="eyebrow">CineTrack</div>
-<h1>Password updated</h1>
-<p>Your password has been changed successfully. You can now return to Cinetrack and sign in.</p>
+  <div class="badge" style="display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;background:#142918;color:#4ade80;font-size:12px;font-weight:600;margin-bottom:16px;">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+    PASSWORD UPDATED
+  </div>
+  <h1>Password updated</h1>
+  <p>Your password has been changed successfully. You can now return to CineTrack and sign in.</p>
+  <a href="cinetrack://auth/session" class="btn-action" style="display:block;width:100%;text-align:center;box-sizing:border-box;margin-top:18px;color:#fff;text-decoration:none;font-size:13px;font-weight:600;border:1px solid #333;padding:12px 18px;border-radius:10px;background:#1e1e1e;">Open CineTrack App</a>
+  <a href="../" style="display:block;width:100%;margin-top:12px;text-align:center;color:#888;text-decoration:none;font-size:12px;">Return to CineTrack Home</a>
 </div>
-<div class="footer">© Cinetrack</div>
+<div class="footer">© CineTrack</div>
 </main>
 <script type="module">
 import { API_BASE } from "../config.js";
@@ -52,17 +57,62 @@ const form = document.getElementById("form");
 const button = document.getElementById("button");
 const message = document.getElementById("message");
 
-function getAccessToken() {
+function getParams() {
   const hash = new URLSearchParams(location.hash.replace(/^#/, ""));
-  return hash.get("access_token");
+  const query = new URLSearchParams(location.search);
+  return {
+    accessToken: hash.get("access_token") || query.get("access_token") || hash.get("token") || query.get("token"),
+    tokenHash: hash.get("token_hash") || query.get("token_hash"),
+    type: hash.get("type") || query.get("type"),
+    error: hash.get("error_description") || query.get("error_description") || hash.get("error") || query.get("error")
+  };
 }
 
-const accessToken = getAccessToken();
+const params = getParams();
+let currentAccessToken = params.accessToken;
 
-if (!accessToken) {
+if (params.error) {
+  message.textContent = decodeURIComponent(params.error.replace(/\+/g, " "));
+  message.className = "msg error";
+  button.disabled = true;
+} else if (params.tokenHash && (params.type === "recovery" || !params.type)) {
+  verifyRecoveryHash(params.tokenHash);
+} else if (!currentAccessToken) {
   message.textContent = "This reset link is invalid or has expired.";
   message.className = "msg error";
   button.disabled = true;
+}
+
+async function verifyRecoveryHash(tokenHash) {
+  message.textContent = "Verifying reset link…";
+  message.className = "msg";
+  button.disabled = true;
+
+  try {
+    const response = await fetch(`${API_BASE}/supabase/auth/v1/verify`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "apikey": "worker-managed"
+      },
+      body: JSON.stringify({
+        type: "recovery",
+        token_hash: tokenHash
+      })
+    });
+
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      throw new Error(data.msg || data.message || data.error_description || "Invalid or expired reset token.");
+    }
+
+    currentAccessToken = data.access_token;
+    message.textContent = "";
+    button.disabled = false;
+  } catch (err) {
+    message.textContent = err.message;
+    message.className = "msg error";
+  }
 }
 
 form.addEventListener("submit", async (event) => {
@@ -93,7 +143,7 @@ form.addEventListener("submit", async (event) => {
       headers: {
         "Content-Type": "application/json",
         "apikey": "worker-managed",
-        "Authorization": `Bearer ${accessToken}`
+        "Authorization": `Bearer ${currentAccessToken}`
       },
       body: JSON.stringify({ password })
     });

@@ -70,10 +70,14 @@ button:disabled{opacity:.5;cursor:not-allowed}
 
 <!-- Verified Success State -->
 <div id="verifiedState" class="hidden">
-  <div class="eyebrow">CINETRACK ACCOUNT</div>
+  <div class="badge" style="display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;background:#142918;color:#4ade80;font-size:12px;font-weight:600;margin-bottom:16px;">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+    EMAIL UPDATED
+  </div>
   <h1>Email updated</h1>
   <p>Your email address has been successfully verified and updated. You can now use your new email to sign in to CineTrack.</p>
-  <a href="../" class="btn-action">Return to CineTrack</a>
+  <a href="cinetrack://auth/session" id="appDeepLink" class="btn-action" style="display:block;width:100%;text-align:center;box-sizing:border-box;">Open CineTrack App</a>
+  <a href="../" class="btn-action" style="display:block;width:100%;text-align:center;box-sizing:border-box;margin-top:10px;background:#141414;color:#aaa;border-color:#252525;">Return to CineTrack Home</a>
 </div>
 
 <!-- No Token Provided State -->
