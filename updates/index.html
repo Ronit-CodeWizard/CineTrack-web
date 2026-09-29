@@ -54,6 +54,16 @@ h1{font-size:38px;line-height:1.08;margin:0 0 12px;letter-spacing:-1px}
 .footer-links a{color:#666;text-decoration:none}
 .footer-links a:hover{color:#aaa}
 .hidden{display:none}
+@keyframes fadeIn{
+  from{opacity:0;transform:translateY(8px)}
+  to{opacity:1;transform:translateY(0)}
+}
+.fade-in{
+  animation:fadeIn 0.45s cubic-bezier(0.16,1,0.3,1) forwards;
+}
+@media(prefers-reduced-motion:reduce){
+  .fade-in{animation:none;opacity:1;transform:none}
+}
 @media(max-width:520px){
   body{padding:22px 14px 42px}
   .header{margin-bottom:44px}
@@ -290,10 +300,16 @@ function renderReleasesUI(normalized) {
   }
 
   latestCard.classList.remove("hidden");
+  latestCard.classList.remove("fade-in");
+  void latestCard.offsetWidth;
+  latestCard.classList.add("fade-in");
 
   if (older && older.length) {
     olderList.innerHTML = "";
     olderSection.classList.remove("hidden");
+    olderSection.classList.remove("fade-in");
+    void olderSection.offsetWidth;
+    olderSection.classList.add("fade-in");
 
     older.forEach(release => {
       const row = document.createElement("div");
@@ -339,7 +355,9 @@ function renderReleasesUI(normalized) {
 async function loadReleases() {
   loading.classList.remove("hidden");
   latestCard.classList.add("hidden");
+  latestCard.classList.remove("fade-in");
   olderSection.classList.add("hidden");
+  olderSection.classList.remove("fade-in");
   statusNotice.classList.add("hidden");
 
   try {

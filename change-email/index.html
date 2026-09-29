@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Change Email Address — CineTrack</title>
+<link rel="icon" type="image/svg+xml" href="/logo.svg">
+<link rel="alternate icon" type="image/png" href="/logo.png">
+<link rel="apple-touch-icon" href="/logo.png">
+<style>
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:#0b0b0b;color:#fff;font-family:Arial,Helvetica,sans-serif;display:grid;place-items:center;padding:24px}
+.card{width:min(440px,100%);background:#151515;border:1px solid #292929;border-radius:20px;padding:38px;box-shadow:0 20px 70px #0008}
+.logo{font-size:21px;font-weight:800;letter-spacing:0.5px;margin-bottom:40px;display:flex;align-items:center;gap:12px;text-decoration:none;color:#fff}
+.eyebrow{font-size:11px;letter-spacing:2px;color:#666;margin-bottom:8px}
+h1{font-size:28px;line-height:1.2;margin:0 0 12px;letter-spacing:-0.5px}
+p{color:#9b9b9b;line-height:1.6;font-size:14px;margin:0 0 14px}
+label{display:block;font-size:13px;margin:20px 0 8px;color:#cfcfcf}
+input{width:100%;padding:14px 15px;border-radius:10px;border:1px solid #303030;background:#0f0f0f;color:#fff;outline:0;font-size:14px;font-family:inherit}
+input:focus{border-color:#777}
+button{width:100%;margin-top:24px;padding:14px;border:0;border-radius:10px;background:#fff;color:#000;font-weight:700;font-size:14px;font-family:inherit;cursor:pointer;transition:background 0.15s ease}
+button:hover{background:#e0e0e0}
+button:disabled{opacity:.5;cursor:not-allowed}
+.msg{min-height:22px;margin-top:16px;font-size:13px;line-height:1.5}
+.success{color:#a3e635}
+.error{color:#ff8d8d}
+.info{color:#a0a0a0}
+.hidden{display:none}
+.footer{text-align:center;color:#555;font-size:11px;margin-top:32px}
+.btn-action{display:inline-block;margin-top:18px;color:#fff;text-decoration:none;font-size:13px;font-weight:600;border:1px solid #333;padding:12px 18px;border-radius:10px;background:#1e1e1e;text-align:center;transition:background 0.15s ease}
+.btn-action:hover{background:#282828}
+.info-box{background:#111;border:1px solid #262626;border-radius:12px;padding:16px;margin:20px 0 10px;font-size:13px;color:#8f8f8f;line-height:1.6}
+</style>
+</head>
+<body>
+<main class="card">
+<a href="../" class="logo">
+  <img src="/logo.svg" alt="CineTrack Logo" width="34" height="34" style="border-radius:8px;background:#0d0d0d;flex-shrink:0;box-shadow:0 2px 10px rgba(0,0,0,0.5);" />
+  <strong style="font-weight:800;font-size:20px;letter-spacing:0.5px;">CineTrack</strong>
+</a>
+
+<!-- Form Content (active with access token) -->
+<div id="content">
+  <div class="eyebrow">ACCOUNT SECURITY</div>
+  <h1>Change email address</h1>
+  <p>Enter the new email address you want associated with your CineTrack account.</p>
+
+  <form id="form">
+    <label for="email">New email address</label>
+    <input id="email" type="email" autocomplete="email" placeholder="name@example.com" required>
+
+    <label for="confirmEmail">Confirm new email address</label>
+    <input id="confirmEmail" type="email" autocomplete="email" placeholder="Re-enter your new email" required>
+
+    <button id="button" type="submit">Update Email Address</button>
+    <div id="message" class="msg"></div>
+  </form>
+</div>
+
+<!-- Pending Confirmation State -->
+<div id="pendingNotice" class="hidden">
+  <div class="eyebrow">VERIFICATION SENT</div>
+  <h1>Confirm your new email</h1>
+  <p>We have sent a verification link to your new email address. Please check your inbox and click the link to confirm the change.</p>
+  <div class="info-box">
+    If email change confirmation is required on your account, an additional security notice may also be sent to your previous email.
+  </div>
+  <a href="../" class="btn-action">Return to CineTrack</a>
+</div>
+
+<!-- Verified Success State -->
+<div id="verifiedState" class="hidden">
+  <div class="eyebrow">CINETRACK ACCOUNT</div>
+  <h1>Email updated</h1>
+  <p>Your email address has been successfully verified and updated. You can now use your new email to sign in to CineTrack.</p>
+  <a href="../" class="btn-action">Return to CineTrack</a>
+</div>
+
+<!-- No Token Provided State -->
+<div id="noTokenState" class="hidden">
+  <div class="eyebrow">AUTHENTICATION REQUIRED</div>
+  <h1>Change your email</h1>
+  <p>To ensure account security, email changes must be initiated from a verified session.</p>
+  <div class="info-box">
+    Open the <strong>CineTrack</strong> Android app, navigate to <strong>Settings &gt; Account</strong>, and select <strong>Change Email</strong> to receive your secure direct link.
+  </div>
+  <a href="../" class="btn-action">Back to Home</a>
+</div>
+
+<div class="footer">© CineTrack</div>
+</main>
+
+<script type="module">
+import { API_BASE } from "../config.js";
+
+const form = document.getElementById("form");
+const button = document.getElementById("button");
+const message = document.getElementById("message");
+const contentEl = document.getElementById("content");
+const pendingNotice = document.getElementById("pendingNotice");
+const verifiedState = document.getElementById("verifiedState");
+const noTokenState = document.getElementById("noTokenState");
+
+function getParams() {
+  const hash = new URLSearchParams(location.hash.replace(/^#/, ""));
+  const query = new URLSearchParams(location.search);
+
+  return {
+    accessToken: hash.get("access_token") || query.get("access_token") || hash.get("token") || query.get("token"),
+    tokenHash: hash.get("token_hash") || query.get("token_hash"),
+    type: hash.get("type") || query.get("type"),
+    error: hash.get("error_description") || query.get("error_description") || hash.get("error") || query.get("error"),
+    message: hash.get("message") || query.get("message")
+  };
+}
+
+const params = getParams();
+
+// Check if this was a verification redirect (user clicked email confirmation link)
+if (params.type === "email_change" || params.message === "Email change confirmed" || (params.accessToken && params.type === "email")) {
+  contentEl.classList.add("hidden");
+  verifiedState.classList.remove("hidden");
+  history.replaceState({}, document.title, location.pathname);
+} else if (params.tokenHash && params.type === "email_change") {
+  // Token hash confirmation callback
+  verifyTokenHash(params.tokenHash);
+} else if (!params.accessToken) {
+  // No active session token
+  contentEl.classList.add("hidden");
+  noTokenState.classList.remove("hidden");
+}
+
+async function verifyTokenHash(tokenHash) {
+  contentEl.classList.add("hidden");
+  message.textContent = "Verifying email change…";
+  message.className = "msg info";
+
+  try {
+    const response = await fetch(`${API_BASE}/supabase/auth/v1/verify`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "apikey": "worker-managed"
+      },
+      body: JSON.stringify({
+        type: "email_change",
+        token_hash: tokenHash
+      })
+    });
+
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      throw new Error(data.msg || data.message || data.error_description || "Invalid or expired confirmation link.");
+    }
+
+    verifiedState.classList.remove("hidden");
+    history.replaceState({}, document.title, location.pathname);
+  } catch (err) {
+    noTokenState.classList.remove("hidden");
+    const p = noTokenState.querySelector("p");
+    if (p) p.textContent = err.message || "This email confirmation link is invalid or has expired.";
+  }
+}
+
+form.addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  const email = document.getElementById("email").value.trim();
+  const confirmEmail = document.getElementById("confirmEmail").value.trim();
+
+  if (email.toLowerCase() !== confirmEmail.toLowerCase()) {
+    message.textContent = "Email addresses do not match.";
+    message.className = "msg error";
+    return;
+  }
+
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailPattern.test(email)) {
+    message.textContent = "Please enter a valid email address.";
+    message.className = "msg error";
+    return;
+  }
+
+  button.disabled = true;
+  button.textContent = "Updating…";
+  message.textContent = "";
+
+  try {
+    const response = await fetch(`${API_BASE}/supabase/auth/v1/user`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        "apikey": "worker-managed",
+        "Authorization": `Bearer ${params.accessToken}`
+      },
+      body: JSON.stringify({ email })
+    });
+
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      throw new Error(data.msg || data.message || data.error_description || data.error || "Unable to update email address.");
+    }
+
+    contentEl.classList.add("hidden");
+    pendingNotice.classList.remove("hidden");
+    history.replaceState({}, document.title, location.pathname);
+  } catch (error) {
+    message.textContent = error.message;
+    message.className = "msg error";
+    button.disabled = false;
+    button.textContent = "Update Email Address";
+  }
+});
+</script>
+</body>
+</html>

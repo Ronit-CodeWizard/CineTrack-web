@@ -53,6 +53,16 @@ h1{font-size:42px;line-height:1.08;margin:0 0 16px;letter-spacing:-1.2px}
 .footer-links{display:flex;justify-content:center;gap:18px}
 .footer-links a{color:#666;text-decoration:none}
 .footer-links a:hover{color:#aaa}
+@keyframes fadeIn{
+  from{opacity:0;transform:translateY(8px)}
+  to{opacity:1;transform:translateY(0)}
+}
+.fade-in{
+  animation:fadeIn 0.45s cubic-bezier(0.16,1,0.3,1) forwards;
+}
+@media(prefers-reduced-motion:reduce){
+  .fade-in{animation:none;opacity:1;transform:none}
+}
 @media(max-width:560px){
   body{padding:22px 14px 42px}
   .header{margin-bottom:40px}
@@ -174,6 +184,9 @@ const WORKER_BASE = WORKER_URL || "https://cinetrack-tmdb.official-ronit-codewiz
     heroDownloadBtn.textContent = "Download APK (v" + cleanVer + ")";
 
     banner.style.display = "flex";
+    banner.classList.remove("fade-in");
+    void banner.offsetWidth;
+    banner.classList.add("fade-in");
   }
 
   try {

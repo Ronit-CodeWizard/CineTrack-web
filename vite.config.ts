@@ -17,6 +17,7 @@ export default defineConfig({
         main: path.resolve(__dirname, 'index.html'),
         updates: path.resolve(__dirname, 'updates/index.html'),
         resetPassword: path.resolve(__dirname, 'reset-password/index.html'),
+        changeEmail: path.resolve(__dirname, 'change-email/index.html'),
       },
     },
   },
